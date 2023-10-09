@@ -1,5 +1,4 @@
-let counterTickets = 0;
-
+let ticketsSold=0;
 function loadFirstMovie() {
     const ulItem = document.querySelector("#list-item");
     const imgContainer = document.querySelector("div#image-container");
@@ -18,6 +17,7 @@ function loadFirstMovie() {
             filmShowTime.textContent = "ShowTime: " + data.showtime;
             const numberofTicketsAvailable = document.createElement("li");
             numberofTicketsAvailable.textContent = "Available Tickets:" + (data.capacity - data.tickets_sold);
+           
 
             imgContainer.innerHTML = ""; 
             imgContainer.appendChild(posterImg);
@@ -26,12 +26,13 @@ function loadFirstMovie() {
             ulItem.appendChild(filmRunTime);
             ulItem.appendChild(filmShowTime);
             ulItem.appendChild(numberofTicketsAvailable);
-
+            purchaseTicket(data.capacity,data.tickets_sold);
         })
 }
 
 function loadAllMovies() {
     const movieList = document.querySelector("ul#films");
+    const label=document.querySelector("#prompt");
     fetch("http://localhost:3000/films")
         .then(resp => resp.json())
         .then(data => {
@@ -39,6 +40,7 @@ function loadAllMovies() {
                 const movieName = document.createElement("li");
                 movieName.textContent = item.title;
                 movieName.addEventListener("click", () => {
+                    label.innerHTML="";
                     movieClickEvent(item.id);
                 });
                 movieList.appendChild(movieName);
@@ -64,6 +66,8 @@ function movieClickEvent(id) {
             clickedFilmShowTime.textContent = "ShowTime: " + data.showtime;
             const numberofTicketsAvailable = document.createElement("li");
             numberofTicketsAvailable.textContent = "Available Tickets:" + (data.capacity - data.tickets_sold);
+            ticketsSold=data.tickets_sold;
+            purchaseTicket(data.capacity,ticketsSold);
 
             imgContainer.innerHTML = ""; 
             imgContainer.appendChild(clickedFilmPoster);
@@ -73,17 +77,19 @@ function movieClickEvent(id) {
             listHolder.appendChild(clickedFilmShowTime);
             listHolder.appendChild(numberofTicketsAvailable);
 
-            purchaseTicket(id, numberofTicketsAvailable);
+            
         });
 }
 
-function purchaseTicket(id, ticketsAvailable) {
+function purchaseTicket(capacity,ticketsSold) {
     const purchaseButton = document.querySelector("button");
+    const label=document.querySelector("#prompt");
     purchaseButton.addEventListener("click", () => {
-        if (ticketsAvailable.textContent > 0) {
-            ticketsAvailable.textContent = ticketsAvailable.textContent - 1;
-            counterTickets++;
-           
+        
+            if ((capacity-ticketsSold) > 0) {
+          
+            label.textContent="Remaining Tickets available: "+ (capacity-ticketsSold-1);
+                       
         } else {
             alert("No more tickets available!");
         }
@@ -93,4 +99,5 @@ function purchaseTicket(id, ticketsAvailable) {
 document.addEventListener("DOMContentLoaded", () => {
     loadFirstMovie();
     loadAllMovies();
+    
 });
